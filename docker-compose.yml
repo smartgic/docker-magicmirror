@@ -1,0 +1,39 @@
+---
+version: "3.8"
+
+services:
+  mm:
+    container_name: mm
+    hostname: mm
+    image: smartgic/magicmirror:${TAG}
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    devices:
+      - /dev/dri
+      - /dev/vchiq
+      - /dev/gpiomem
+      - /dev/snd
+    group_add:
+      - 44
+      - 107
+      - 997
+    environment:
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/var/run/dbus/system_bus_socket
+      DISPLAY: :0
+      NODE_ENV: production
+      ELECTRON_DISABLE_SANDBOX: 1
+      PULSE_SERVER: unix:${XDG_RUNTIME_DIR}/pulse/native
+      PULSE_COOKIE: /opt/snow/.config/pulse/cookie
+      XAUTHORITY: /tmp/.docker.xauth
+      TZ: ${TIMEZONE}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ${X11_SOCKET}:/tmp/.X11-unix
+      - ${XAUTHORITY}:/tmp/.docker.xauth
+      - ${CONFIG_FOLDER}:/opt/mm/config:ro
+      - ${MODULES_FOLDER}:/opt/mm/modules
+      - ${XDG_RUNTIME_DIR}/bus:/var/run/dbus/system_bus_socket
+      - ~/.config/pulse/cookie:/opt/snow/.config/pulse/cookie:ro
+      - ${XDG_RUNTIME_DIR}/pulse:${XDG_RUNTIME_DIR}/pulse:ro
